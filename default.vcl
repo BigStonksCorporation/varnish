@@ -16,7 +16,7 @@ backend default {
 sub vcl_backend_response {
 	set beresp.ttl = 5m;
 
-	if (beresp.url ~ "/postimage.php?*" || beresp.url ~ "/postimage.php?*") {
+	if (beqreq.url ~ "/postimage.php?*" || beqreq.url ~ "/postimage.php?*") {
 		set beresp.ttl = 24h;
 	}
 
