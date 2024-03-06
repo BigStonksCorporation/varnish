@@ -11,6 +11,7 @@ backend default {
 		.threshold = 3; 
 	}
 }
+import std;
 
 sub vcl_backend_response {
      set beresp.grace = 12h;
