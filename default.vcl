@@ -12,14 +12,14 @@ backend default {
 	}
 }
 
-# Respond to incoming requests.
-sub vcl_recv {
-  # Allow the backend to serve up stale content if it is responding slowly.
-  set req.grace = 12h;
+sub vcl_backend_response {
+     set beresp.grace = 12h;
+     // no keep - the grace should be enough for 304 candidates
 }
 
-# Code determining what to do when serving items from the Apache servers.
-sub vcl_fetch {
-  # Allow items to be stale if needed.
-  set beresp.grace = 12h;
+sub vcl_recv {
+     if (std.healthy(req.backend_hint)) {
+          // change the behavior for healthy backends: Cap grace to 10s
+          set req.grace = 10s;
+     }
 }
