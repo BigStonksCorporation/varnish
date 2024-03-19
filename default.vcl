@@ -14,6 +14,10 @@ backend default {
 }
 
 sub vcl_backend_response {
+	// https://stackoverflow.com/a/9024549
+	unset beresp.http.Cache-Control;
+	set beresp.http.Cache-Control = "public";
+
 	set beresp.ttl = 5m;
 
 	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
