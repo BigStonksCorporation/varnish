@@ -2,7 +2,7 @@ vcl 4.1;
 import std;
 
 backend default {
-	.host = "192.168.131.198";
+	.host = "192.168.130.248";
 	.port = "80";
 	.probe = { 
 		.url = "/";
