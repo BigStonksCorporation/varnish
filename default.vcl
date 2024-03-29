@@ -29,11 +29,13 @@ sub vcl_recv {
 }
 
 sub vcl_backend_response {
+	if (bereq.url ~ "/" || bereq.url ~ "/index.php") {
+		set beresp.ttl = 1h;
+		set beresp.http.Cache-control = "public, max-age=3600";
+	}
+
 	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
 		set beresp.ttl = 24h;
 		set beresp.http.Cache-control = "public, max-age=86400";
-	} else {
-		set beresp.ttl = 1h;
-		set beresp.http.Cache-control = "public, max-age=3600";
 	}
 }
