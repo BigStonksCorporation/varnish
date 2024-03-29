@@ -1,36 +1,39 @@
 vcl 4.1;
-import std;
 
-backend default {
-	.host = "192.168.130.248";
+import directors;
+
+backend server1 {
+	.host = "192.168.128.81";
 	.port = "80";
-	.probe = { 
-		.url = "/";
-		.timeout = 1s;
-		.interval = 5s;
-		.window = 5;
-		.threshold = 3; 
-	}
 }
 
-sub vcl_backend_response {
-	// https://stackoverflow.com/a/9024549
-	unset beresp.http.Cache-Control;
-	set beresp.http.Cache-Control = "public";
+backend server2 {
+	.host = "192.168.130.224";
+	.port = "80";
+}
 
-	set beresp.ttl = 5m;
+backend server3 {
+	.host = "192.168.128.123";
+	.port = "80";
+}
 
-	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
-		set beresp.ttl = 24h;
-	}
-
-	set beresp.grace = 12h;
-	// no keep - the grace should be enough for 304 candidates
+sub vcl_init {
+    new balancer = directors.round_robin();
+    balancer.add_backend(server1);
+    balancer.add_backend(server2);
+		balancer.add_backend(server3);
 }
 
 sub vcl_recv {
-	if (std.healthy(req.backend_hint)) {
-		// change the behavior for healthy backends: Cap grace to 10s
-		set req.grace = 10s;
+    set req.backend_hint = balancer.backend();
+}
+
+sub vcl_backend_response {
+	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
+		set beresp.ttl = 24h;
+		set beresp.http.Cache-control = "public, max-age=86400";
+	} else {
+		set beresp.ttl = 1h;
+		set beresp.http.Cache-control = "public, max-age=3600";
 	}
 }
