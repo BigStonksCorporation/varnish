@@ -6,10 +6,10 @@ backend default {
 	.port = "80";
 	.probe = { 
 		.url = "/";
-		.timeout = 1s;
+		.timeout = 10s;
 		.interval = 30s;
-		.window = 5;
-		.threshold = 3; 
+		.window = 1;
+		.threshold = 1;
 	}
 }
 
