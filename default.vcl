@@ -24,13 +24,13 @@ sub vcl_backend_response {
 		set beresp.http.Cache-control = "public, max-age=86400";
 	}
 
-	set beresp.grace = 12h;
+	# set beresp.grace = 12h;
 	// no keep - the grace should be enough for 304 candidates
 }
 
 sub vcl_recv {
-	if (std.healthy(req.backend_hint)) {
-		// change the behavior for healthy backends: Cap grace to 10s
-		set req.grace = 10s;
-	}
+	# if (std.healthy(req.backend_hint)) {
+	# 	// change the behavior for healthy backends: Cap grace to 10s
+	# 	set req.grace = 10s;
+	# }
 }
