@@ -1,31 +1,16 @@
 vcl 4.1;
+import std;
 
-import directors;
-
-backend server1 {
-	.host = "192.168.128.81";
-	.port = "80";
-}
-
-backend server2 {
-	.host = "192.168.130.224";
-	.port = "80";
-}
-
-backend server3 {
+backend default {
 	.host = "192.168.128.123";
 	.port = "80";
-}
-
-sub vcl_init {
-    new balancer = directors.round_robin();
-    balancer.add_backend(server1);
-    balancer.add_backend(server2);
-		balancer.add_backend(server3);
-}
-
-sub vcl_recv {
-    set req.backend_hint = balancer.backend();
+	.probe = { 
+		.url = "/";
+		.timeout = 1s;
+		.interval = 30s;
+		.window = 5;
+		.threshold = 3; 
+	}
 }
 
 sub vcl_backend_response {
@@ -37,5 +22,15 @@ sub vcl_backend_response {
 	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
 		set beresp.ttl = 24h;
 		set beresp.http.Cache-control = "public, max-age=86400";
+	}
+
+	set beresp.grace = 12h;
+	// no keep - the grace should be enough for 304 candidates
+}
+
+sub vcl_recv {
+	if (std.healthy(req.backend_hint)) {
+		// change the behavior for healthy backends: Cap grace to 10s
+		set req.grace = 10s;
 	}
 }
