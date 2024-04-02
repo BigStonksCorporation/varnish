@@ -15,8 +15,8 @@ backend default {
 
 sub vcl_backend_response {
 	if (bereq.url ~ "/" || bereq.url ~ "/index.php") {
-		set beresp.ttl = 1h;
-		set beresp.http.Cache-control = "public, max-age=3600";
+		set beresp.ttl = 5m;
+		set beresp.http.Cache-control = "public, max-age=300";
 	}
 
 	if (bereq.url ~ "/postimage.php" || bereq.url ~ "/postimage.php") {
